@@ -17,7 +17,7 @@ faiss-cpu
 sentence-transformers
 transformers
 huggingface-hub
-
+langchain-groq
 pydantic
 python-dotenv
 

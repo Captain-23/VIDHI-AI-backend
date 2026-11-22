@@ -25,7 +25,7 @@ class GroqLLM:
         self.llm = ChatGroq(
             api_key=self.api_key,
             model=os.getenv("GROQ_MODEL", "openai/gpt-oss-20b"),
-            max_tokens=int(os.getenv("GROQ_MAX_TOKENS", "1200"))
+            max_tokens=int(os.getenv("GROQ_MAX_TOKENS", "4096"))
         )
 
     def invoke(self, prompt: str):

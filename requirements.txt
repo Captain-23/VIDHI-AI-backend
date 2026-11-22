@@ -20,7 +20,7 @@ huggingface-hub
 langchain-groq
 pydantic
 python-dotenv
-
+fastembed
 groq
 tiktoken
 

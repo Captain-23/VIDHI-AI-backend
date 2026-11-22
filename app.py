@@ -28,6 +28,11 @@ vector_store = FaissVectorStore("faiss_index")
 graph = GraphBuilder(llm, vector_store).build()
 
 
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
+
 
 @app.post("/judgement")
 async def give_judgement(request: Request):
@@ -39,7 +44,16 @@ async def give_judgement(request: Request):
 
     state = {"raw_case_file": case_text}
 
-    result = graph.invoke(state)
+    try:
+        result = graph.invoke(state)
+    except Exception as exc:
+        error = str(exc)
+        if "Request too large" in error or "rate_limit" in error:
+            return {
+                "error": "Groq free-tier token limit reached",
+                "detail": "Wait one minute, shorten the case text, or upgrade Groq to Dev Tier.",
+            }
+        raise
 
     # If LangGraph HITL interrupt (rare)
     if "__interrupt__" in result:

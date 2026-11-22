@@ -1393,7 +1393,7 @@ class JudgeNode:
             }
         
         # Get relevant IPC sections from vector store
-        ipc_context = self._get_relevant_ipc_sections(case_facts, k=10)
+        ipc_context = self._get_relevant_ipc_sections(case_facts, k=3)
         
         print(f"\n{'='*60}")
         print(f"📚 RETRIEVED IPC SECTIONS FOR JUDGMENT")
@@ -1630,6 +1630,37 @@ The accused **[Name]** is found:
 
 ---
 """
+
+        case_facts = case_facts[:1000]
+        prosecution = prosecution[:700]
+        defense = defense[:700]
+        ipc_context = ipc_context[:1200]
+
+        prompt = f"""You are an experienced Indian Trial Court Judge.
+Produce a concise final judgment using only the supplied facts and IPC sections.
+
+AVAILABLE IPC SECTIONS:
+{ipc_context}
+
+CASE FACTS:
+{case_facts}
+
+PROSECUTION:
+{prosecution}
+
+DEFENSE:
+{defense}
+
+OUTPUT:
+1. Court and case title
+2. Brief facts
+3. Charges
+4. Applicable IPC sections and evidence analysis
+5. Findings
+6. Final verdict: guilty/not guilty
+7. If guilty, award the statutory maximum sentence under the applicable sections
+
+Do not invent facts, sections, evidence, names, or punishments."""
 
         try:
             print("\n🤖 Generating judgment...")

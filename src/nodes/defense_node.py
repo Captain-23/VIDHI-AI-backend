@@ -13,8 +13,8 @@ class DefenseNode:
         self.llm = llm
 
     def defense_argument(self, state: CaseState):
-        ctx = state.get("rag_context", "")
-        prosecution_argument = state.get("prosecution_argument", "")
+        ctx = state.get("rag_context", "")[:3000]
+        prosecution_argument = state.get("prosecution_argument", "")[:1500]
 
         prompt = f"""
 You are the DEFENSE LAWYER in an Indian courtroom.
@@ -35,8 +35,13 @@ Prosecution Argument:
 Now write the defense argument.
 """
 
-        response = self.llm.invoke(prompt)
-
-        return {
-            "defense_argument": response.content
-        }
+        try:
+            response = self.llm.invoke(prompt)
+            return {
+                "defense_argument": response.content
+            }
+        except Exception as exc:
+            return {
+                "defense_argument":
+                f"Unable to generate defense argument: {exc}"
+            }

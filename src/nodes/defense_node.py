@@ -2,41 +2,57 @@ from src.states.case_state import CaseState
 
 
 class DefenseNode:
-    """
-    Defense Lawyer Agent
-    Constructs a strong argument defending the accused,
-    responding directly to the prosecution argument and
-    using only case facts retrieved via RAG.
-    """
+    """Creates a defense-side analysis for the case simulation."""
 
     def __init__(self, llm):
         self.llm = llm
 
     def defense_argument(self, state: CaseState):
-        ctx = state.get("rag_context", "")
-        prosecution_argument = state.get("prosecution_argument", "")
+        ctx = state.get("rag_context", "").strip()
+        prosecution_argument = state.get("prosecution_argument", "").strip()
+
+        if not ctx:
+            return {
+                "defense_argument": (
+                    "No case facts were retrieved, so a grounded defense "
+                    "analysis cannot be prepared."
+                )
+            }
 
         prompt = f"""
-You are the DEFENSE LAWYER in an Indian courtroom.
+Prepare an educational, defense-side analysis for a courtroom simulation.
+This is not legal advice or a real court submission.
 
-Your duties:
-- Argue that the accused is NOT guilty.
-- Respond directly to the prosecution's claims.
-- Use ONLY the facts present in the authenticated case documents.
-- Point out inconsistencies, missing evidence, or lack of proof.
-- Build a strong, structured legal defense.
+Use only the case facts below. Respond to the prosecution's points by
+identifying reasonable weaknesses, uncertainties, alternative
+interpretations, and gaps in the evidence. Do not invent facts or claim
+that the accused is innocent. If the supplied facts do not support a
+defense point, say so clearly.
 
-Case Facts:
+Case facts:
 {ctx}
 
-Prosecution Argument:
-{prosecution_argument}
+Prosecution argument:
+{prosecution_argument or "No prosecution argument was provided."}
 
-Now write the defense argument.
+Write a clear, structured defense-side analysis.
 """
 
-        response = self.llm.invoke(prompt)
+        try:
+            response = self.llm.invoke(prompt)
+            content = response.content
 
-        return {
-            "defense_argument": response.content
-        }
+            if isinstance(content, str):
+                argument = content.strip()
+            else:
+                argument = str(content).strip()
+
+            if not argument:
+                argument = "The model returned an empty defense analysis."
+
+            return {"defense_argument": argument}
+
+        except Exception as exc:
+            return {
+                "defense_argument": f"Unable to generate defense analysis: {exc}"
+            }

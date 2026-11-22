@@ -13,7 +13,7 @@ class ProsecutionNode:
         self.llm = llm
 
     def prosecutor_argument(self, state: CaseState):
-        ctx = state.get("rag_context", "")[:4000]
+        ctx = state.get("rag_context", "")
 
         prompt = f"""
 You are the PROSECUTION LAWYER in an Indian courtroom.
@@ -30,13 +30,8 @@ Case Facts:
 Now write a strong prosecution argument.
 """
 
-        try:
-            response = self.llm.invoke(prompt)
-            return {
-                "prosecution_argument": response.content
-            }
-        except Exception as exc:
-            return {
-                "prosecution_argument":
-                f"Unable to generate prosecution argument: {exc}"
-            }
+        response = self.llm.invoke(prompt)
+
+        return {
+            "prosecution_argument": response.content
+        }
